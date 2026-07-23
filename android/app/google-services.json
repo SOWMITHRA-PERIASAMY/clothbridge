@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "645670203573",
+    "project_id": "clothbridge2",
+    "storage_bucket": "clothbridge2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:645670203573:android:06d7ea10bbe19e562c4efc",
+        "android_client_info": {
+          "package_name": "com.example.clothbridge"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOiBy7Tx8acA7Hqr63uU-1GENz_TRG2YU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

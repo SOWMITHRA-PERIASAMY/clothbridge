@@ -1,0 +1,15 @@
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+pydantic==2.9.2
+pydantic-settings==2.5.2
+python-multipart==0.0.12
+requests==2.32.3
+pillow==10.4.0
+numpy==1.26.4
+google-cloud-firestore==2.19.0
+firebase-admin==6.5.0
+pytest==8.3.3
+httpx==0.27.2
+
+# ML (only required for training / real inference — see ml_pipeline/requirements.txt)
+tensorflow==2.17.0
