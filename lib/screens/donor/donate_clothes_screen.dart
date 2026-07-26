@@ -8,6 +8,8 @@ import 'package:uuid/uuid.dart';
 import '../../models/donation_model.dart';
 import '../../services/donation_service.dart';
 import '../../services/storage_service.dart';
+import '../../services/api_service.dart';
+
 class DonateClothesScreen extends StatefulWidget {
   const DonateClothesScreen({super.key});
 
@@ -24,7 +26,11 @@ class _DonateClothesScreenState
   // -------------------------------------------------
   final StorageService _storageService = StorageService();
   final DonationService _donationService = DonationService();
+  final ReWearApiService _apiService = ReWearApiService();
   final ImagePicker _picker = ImagePicker();
+
+  Map<String, dynamic>? aiQualityReport;
+  Map<String, dynamic>? aiRecommendations;
 
   List<File> selectedImages = [];
 
@@ -272,6 +278,28 @@ Future<void> submitDonation() async {
     List<String> imageUrls =
         await _storageService.uploadImages(selectedImages);
 
+    // --- ReWear AI quality check (non-blocking: donation still saves even if this fails) ---
+    try {
+      final backendCategory = mapCategoryToBackend(selectedCategory!);
+      final beDonationId = await _apiService.createDonation(
+        donorId: user.uid,
+        category: backendCategory,
+        imageUrl: imageUrls.first,
+        description: descriptionController.text.trim(),
+      );
+      final report = await _apiService.runPrediction(beDonationId);
+      Map<String, dynamic>? recs;
+      if (report["decision"] != "accept") {
+        recs = await _apiService.getRecommendations(beDonationId);
+      }
+      setState(() {
+        aiQualityReport = report;
+        aiRecommendations = recs;
+      });
+    } catch (e) {
+      debugPrint("AI quality check failed (non-blocking): $e");
+    }
+
     String donationId = const Uuid().v4();
 
     DonationModel donation = DonationModel(
@@ -321,6 +349,37 @@ Future<void> submitDonation() async {
         ),
 
       );
+
+      if (aiQualityReport != null) {
+        await showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text("AI Quality Check"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Score: ${aiQualityReport!['quality_score']}"),
+                Text("Decision: ${aiQualityReport!['decision']}"),
+                if (aiRecommendations != null &&
+                    (aiRecommendations!['suggestions'] as List).isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      "Suggestions: ${(aiRecommendations!['suggestions'] as List).map((s) => s['product_name']).join(', ')}",
+                    ),
+                  ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
 
       Navigator.pop(context);
 
@@ -611,7 +670,7 @@ Future<void> submitDonation() async {
                       const SizedBox(height: 20),
 
                       DropdownButtonFormField<String>(
-                        value: selectedCategory,
+                        initialValue: selectedCategory,
                         decoration: InputDecoration(
                           labelText: "Category",
                           prefixIcon: const Icon(Icons.checkroom),
@@ -636,7 +695,7 @@ Future<void> submitDonation() async {
                       const SizedBox(height: 18),
 
                       DropdownButtonFormField<String>(
-                        value: selectedGender,
+                        initialValue: selectedGender,
                         decoration: InputDecoration(
                           labelText: "Gender",
                           prefixIcon: const Icon(Icons.people),
@@ -661,7 +720,7 @@ Future<void> submitDonation() async {
                       const SizedBox(height: 18),
 
                       DropdownButtonFormField<String>(
-                        value: selectedAgeGroup,
+                        initialValue: selectedAgeGroup,
                         decoration: InputDecoration(
                           labelText: "Age Group",
                           prefixIcon: const Icon(Icons.child_care),
@@ -690,7 +749,7 @@ Future<void> submitDonation() async {
 
                           Expanded(
                             child: DropdownButtonFormField<String>(
-                              value: selectedSize,
+                              initialValue: selectedSize,
                               decoration: InputDecoration(
                                 labelText: "Size",
                                 prefixIcon:
@@ -718,7 +777,7 @@ Future<void> submitDonation() async {
 
                           Expanded(
                             child: DropdownButtonFormField<String>(
-                              value: selectedColor,
+                              initialValue: selectedColor,
                               decoration: InputDecoration(
                                 labelText: "Color",
                                 prefixIcon:
@@ -843,7 +902,7 @@ Future<void> submitDonation() async {
                       const SizedBox(height: 20),
 
                       DropdownButtonFormField<String>(
-                        value: selectedCondition,
+                        initialValue: selectedCondition,
                         decoration: InputDecoration(
                           labelText: "Condition",
                           prefixIcon: const Icon(Icons.star),
@@ -1080,7 +1139,7 @@ Future<void> submitDonation() async {
 
                       DropdownButtonFormField<String>(
 
-                        value: selectedTimeSlot,
+                        initialValue: selectedTimeSlot,
 
                         decoration: InputDecoration(
 
@@ -1126,7 +1185,7 @@ Future<void> submitDonation() async {
 
                       DropdownButtonFormField<String>(
 
-                        value: selectedNgo,
+                        initialValue: selectedNgo,
 
                         decoration: InputDecoration(
 
