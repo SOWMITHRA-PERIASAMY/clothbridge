@@ -5,6 +5,7 @@ import 'package:clothbridge/services/firestore_service.dart';
 import 'package:clothbridge/screens/donor/donor_dashboard.dart';
 import 'package:clothbridge/screens/ngo/ngo_dashboard.dart';
 import 'package:clothbridge/screens/admin/admin_dashboard.dart';
+import 'package:clothbridge/screens/shg/shg_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   final String role;
@@ -90,6 +91,13 @@ class _LoginScreenState extends State<LoginScreen> {
           context,
           MaterialPageRoute(
             builder: (_) => const AdminDashboard(),
+          ),
+        );
+      } else if (role == "SHG") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ShgDashboard(),
           ),
         );
       } else {

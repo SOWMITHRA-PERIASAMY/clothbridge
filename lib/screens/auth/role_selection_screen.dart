@@ -69,6 +69,15 @@ class RoleSelectionScreen extends StatelessWidget {
               title: "Admin",
               subtitle: "Manage the ClothBridge platform",
             ),
+
+            const SizedBox(height: 20),
+
+            _roleCard(
+              context,
+              icon: Icons.groups,
+              title: "SHG",
+              subtitle: "Upcycle donated clothes into new products",
+            ),
           ],
         ),
       ),
