@@ -750,6 +750,7 @@ Future<void> submitDonation() async {
                           Expanded(
                             child: DropdownButtonFormField<String>(
                               initialValue: selectedSize,
+                              isExpanded: true,
                               decoration: InputDecoration(
                                 labelText: "Size",
                                 prefixIcon:
@@ -778,6 +779,7 @@ Future<void> submitDonation() async {
                           Expanded(
                             child: DropdownButtonFormField<String>(
                               initialValue: selectedColor,
+                              isExpanded: true,
                               decoration: InputDecoration(
                                 labelText: "Color",
                                 prefixIcon:
